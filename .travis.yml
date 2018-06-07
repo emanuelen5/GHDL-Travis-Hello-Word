@@ -12,7 +12,7 @@ install:
   - mkdir ${GNAT_FOLDER}
   - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
   - pushd ${GNAT_FOLDER}
-  - sudo sh -c 'printf "\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [default-dir]; y [Are you sure?]; y [Really sure?])
+  - sudo sh -c 'printf "\n\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [Splash screen]; Enter [default-dir]; y [Are you sure?]; y [Really sure?])
   - popd
   - export PATH="/usr/gnat/bin:$PATH"
   - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
