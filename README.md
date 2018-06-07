@@ -1,4 +1,6 @@
 # Travis CI project with GHDL
+[![Build Status](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World.svg?branch=travis-ci-integration)](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World)
+
 Following this [tutorial](https://theintobooks.wordpress.com/2018/01/23/building-ghdl-from-source-for-ubuntu-16-04-mcode-version/) for setting up GHDL with mcode on Travis (homefully the simplest way to get working with Travis).
 
 * ADA compiler [download links](https://www.adacore.com/download/more) for [32b-linux](http://mirrors.cdn.adacore.com/art/564b3e9dc8e196b040fbe248) and [64b-linux](http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7).
