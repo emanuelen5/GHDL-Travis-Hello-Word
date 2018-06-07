@@ -9,9 +9,9 @@ script:
   - cd ~
   - echo $PWD
   - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
-  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C gnat > gnat_untar.log
+  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} > gnat_untar.log
   - pushd ${GNAT_FOLDER}
-  - sudo ./doinstall
+  - sudo sh -c 'printf "\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [default-dir]; y [Are you sure?]; y [Really sure?])
   - popd
   - export PATH="/usr/gnat/bin:$PATH"
   - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
