@@ -1,10 +1,10 @@
 language: python
 python:
   - 3.6
+sudo: required
+
 install:
   - sudo apt-get install zlib1g-dev
-sudo: required
-script:
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
   - cd ~
   - echo $PWD
@@ -22,4 +22,6 @@ script:
   - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
   - popd
   - pip install vunit_hdl
+
+script:
   - echo "All is installed and well!"
