@@ -1,0 +1,23 @@
+language: python
+python:
+  - 3.6
+install:
+  - sudo apt-get install zlib1g-dev
+sudo: required
+script:
+  - cd ~
+  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O gnat.tar.gz
+  - tar -vxzf gnat.tar.gz
+  - pushd gnat
+  - sudo ./doinstall
+  - popd
+  - export PATH="/usr/gnat/bin:$PATH"
+  - git clone https://github.com/ghdl/ghdl.git
+  - pushd ghdl
+  - ./configure --prefix=/usr/local/ghdl_mcode
+  - make
+  - sudo PATH=$PATH make install
+  - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
+  - popd
+  - pip intall vunit_hdl
+  - echo "All is installed and well!"
