@@ -5,19 +5,21 @@ install:
   - sudo apt-get install zlib1g-dev
 sudo: required
 script:
+  - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
   - cd ~
-  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O gnat.tar.gz
-  - tar -vxzf gnat.tar.gz
-  - pushd gnat
+  - echo $PWD
+  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
+  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C gnat > gnat_untar.log
+  - pushd ${GNAT_FOLDER}
   - sudo ./doinstall
   - popd
   - export PATH="/usr/gnat/bin:$PATH"
-  - git clone https://github.com/ghdl/ghdl.git
+  - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
   - pushd ghdl
   - ./configure --prefix=/usr/local/ghdl_mcode
   - make
   - sudo PATH=$PATH make install
   - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
   - popd
-  - pip intall vunit_hdl
+  - pip install vunit_hdl
   - echo "All is installed and well!"

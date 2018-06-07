@@ -30,6 +30,6 @@ sudo PATH=$PATH make install
 export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
 # --- GHDL is now installed and on the path! ---
 
-pip intall vunit_hdl
+pip install vunit_hdl
 python vunit_main.py
 ```
