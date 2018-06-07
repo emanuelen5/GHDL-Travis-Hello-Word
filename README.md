@@ -6,11 +6,13 @@ Following this [tutorial](https://theintobooks.wordpress.com/2018/01/23/building
 ## Steps I have taken
 ```bash
 cd ~/Downloads
-wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 # gnat-gpl-2017-x86_64-linux-bin.tar.gz
+wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 # filename: 'gnat-gpl-2017-x86_64-linux-bin.tar.gz'
 tar -vxzf gnat-gpl-2017-x86_64-linux-bin.tar.gz
 cd gnat-gpl-2017-x86_64-linux-bin
 
-# Install complete!
+sudo ./doinstall
+# Install of ADA is now complete!
+
 export PATH="/usr/gnat/bin:$PATH"
 
 # Clone GHDL and build
@@ -21,6 +23,9 @@ sudo apt-get install zlib1g-dev
 cd ghdl
 ./configure --prefix=/usr/local/ghdl_mcode
 make
+
+# '/usr/gnat/bin' needs to be on the path when installing
+sudo PATH=$PATH make install
 
 export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
 # --- GHDL is now installed and on the path! ---
