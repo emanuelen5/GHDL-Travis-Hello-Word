@@ -1,5 +1,5 @@
 # Travis CI project with GHDL
-[![Build Status](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World.svg?branch=master)](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World)
+[![Build Status](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World.svg?branch=travis-ci-docker-build)](https://travis-ci.org/emanuelen5/GHDL-Travis-Hello-World)
 
 Following this [tutorial](https://theintobooks.wordpress.com/2018/01/23/building-ghdl-from-source-for-ubuntu-16-04-mcode-version/) for setting up GHDL with mcode on Travis (homefully the simplest way to get working with Travis).
 
