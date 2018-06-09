@@ -25,17 +25,24 @@ sudo: required
 #  - popd
 #  - pip install vunit_hdl
 
-post-install:
+before_script:
   - cd $TRAVIS_BUILD_DIR
 
 # Here we can run GHDL with VUnit
 script:
   - touch fake.ghdl.bin
   - echo "All is installed and well!"
+  - du -s *
+  - pwd
+  - ls
 
 # Deploying GHDL binary to Github
 before_deploy:
+  - git config user.name "Travis CI"
+  - git config user.email "erasmus.cedernaes@gmail.com"
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci"
+  - pwd
+  - ls
 
 deploy:
   provider: releases
