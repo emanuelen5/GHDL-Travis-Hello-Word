@@ -25,6 +25,9 @@ sudo: required
 #  - popd
 #  - pip install vunit_hdl
 
+post-install:
+  - cd $TRAVIS_BUILD_DIR
+
 # Here we can run GHDL with VUnit
 script:
   - touch fake.ghdl.bin
