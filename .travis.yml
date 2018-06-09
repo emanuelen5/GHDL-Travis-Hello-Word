@@ -1,7 +1,7 @@
 language: python
 python:
   - 3.6
-sudo: required
+#sudo: required
 
 ## Prerequisites for actually running GHDL
 #install:
