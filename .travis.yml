@@ -3,41 +3,42 @@ python:
   - 3.6
 sudo: required
 
-# Prerequisites for actually running GHDL
-install:
-  - sudo apt-get install zlib1g-dev
-  - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
-  - cd ~
-  - echo $PWD
-  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
-  - mkdir ${GNAT_FOLDER}
-  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
-  - pushd ${GNAT_FOLDER}
-  - sudo sh -c 'printf "\n\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [Splash screen]; Enter [default-dir]; y [Are you sure?]; y [Really sure?])
-  - popd
-  - export PATH="/usr/gnat/bin:$PATH"
-  - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
-  - pushd ghdl
-  - ./configure --prefix=/usr/local/ghdl_mcode
-  - make
-  - sudo PATH=$PATH make install
-  - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
-  - popd
-  - pip install vunit_hdl
+## Prerequisites for actually running GHDL
+#install:
+#  - sudo apt-get install zlib1g-dev
+#  - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
+#  - cd ~
+#  - echo $PWD
+#  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
+#  - mkdir ${GNAT_FOLDER}
+#  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
+#  - pushd ${GNAT_FOLDER}
+#  - sudo sh -c 'printf "\n\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [Splash screen]; Enter [default-dir]; y [Are you sure?]; y [Really sure?])
+#  - popd
+#  - export PATH="/usr/gnat/bin:$PATH"
+#  - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
+#  - pushd ghdl
+#  - ./configure --prefix=/usr/local/ghdl_mcode
+#  - make
+#  - sudo PATH=$PATH make install
+#  - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
+#  - popd
+#  - pip install vunit_hdl
 
 # Here we can run GHDL with VUnit
 script:
+  - touch fake.ghdl.bin
   - echo "All is installed and well!"
 
 # Deploying GHDL binary to Github
 before_deploy:
-  - git config --local user.name "Travis CI"
-  - git config --local user.email ""
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git leg --format=%h -1)"
 
 deploy:
   provider: releases
   api_key:
     secure: SXUWuSyMfugJ967J9GnM9HgvLhbvV2esfRIvIUvKMI9VA1L6hwW9G1q8KzpKvVH70v6HtnZsNAKjNr3rOxnMXZs1zcXheqzkiy+xKOp8TyfoypMTdUavys8vN0AVP2ZJxqbfCf7pxKNaIyOD002mQyTKs6WRQTU1D0Zy0xjdug1SJODeanojZl6fNUXw4g91jwZ9G9DRFFeWiqn+YsMdpWyqLVQueA767gHcp/0w0FF42xSPGYjp9qvN/22HKAbhTW2rMOcFdxK0lZKyxGH7GEukseowuVqYVLLCAdt8+My9JE24zJsnyWjtQ1ewyUFNbRisYe6gwEXp7kH49SuAfK1J5g+qiRoAhdtwSAzoqNbPo847YAIWIPCnA63C77jwx7JdL4afj65xQ20yF7MhnElFJgc+Afc+/N2r0wUs4T2SLA1ikLuAKkbPJq2JY0uJMlJOZ+i1yPiAxTflDORWyQ5jqySLLZfFx/6U6BChv/i6lBJLacs2e3YawY0G6sYTlZDr8euB1GoBASztNVAWixXgDDKUSCcNKuHaGtvyWtLg8LPob9xbaYVkTmBm2QsBKvgeBOt8otHp6uDfn2bRgPIZPc57mxcMuzOQNLM3VAAeypYB5oD1Vv45ikYLzJsdBuwN2y8iQ2WAMtG0YrfP2lGgiYRwlROv/GN/u7PZMKg=
-  file: "/usr/local/ghdl_mcode/bin/ghdl"
+  file: "fake.ghdl.bin"
   skip_cleanup: true
+  on:
+    all_branches: true
