@@ -45,7 +45,8 @@ before_deploy:
   - git config user.name "Travis CI"
   - git config user.email "erasmus.cedernaes@gmail.com"
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci"
-  - cp /usr/local/ghdl_mcode ghdl_mcode
+  # Create tar.gz folder
+  - cp -R /usr/local/ghdl_mcode ghdl_mcode
   - tar -czf ghdl_mcode.tar.gz ghdl_mcode
 
 deploy:
