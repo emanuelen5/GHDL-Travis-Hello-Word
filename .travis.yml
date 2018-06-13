@@ -3,6 +3,7 @@ python:
   - 3.6
 sudo: required
 
+# Prerequisites for actually running GHDL
 install:
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
@@ -24,5 +25,39 @@ install:
   - popd
   - pip install vunit_hdl
 
+before_script:
+  - cd $TRAVIS_BUILD_DIR
+
+# Here we should be able to run GHDL with VUnit
 script:
+  # Downloading example VHDL entity
+  - curl -O https://raw.githubusercontent.com/emanuelen5/Neopixel-VHDL/b969e25b9a8d1c6e14e8989c03f1b50eb36f7d60/vhdl/debouncer.vhd
+  # Trying simple commands that should work
+  - ghdl -a debouncer.vhd
+  - ghdl -e debouncer
+  - ghdl -r debouncer
+
+after_success:
   - echo "All is installed and well!"
+
+# Deploying GHDL binary to Github
+before_deploy:
+  - git config user.name "Travis CI"
+  - git config user.email "erasmus.cedernaes@gmail.com"
+  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci"
+  # Create tar.gz folder
+  - cp -R /usr/local/ghdl_mcode ghdl_mcode
+  - tar -czf ghdl_mcode.tar.gz ghdl_mcode
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "SXUWuSyMfugJ967J9GnM9HgvLhbvV2esfRIvIUvKMI9VA1L6hwW9G1q8KzpKvVH70v6HtnZsNAKjNr3rOxnMXZs1zcXheqzkiy+xKOp8TyfoypMTdUavys8vN0AVP2ZJxqbfCf7pxKNaIyOD002mQyTKs6WRQTU1D0Zy0xjdug1SJODeanojZl6fNUXw4g91jwZ9G9DRFFeWiqn+YsMdpWyqLVQueA767gHcp/0w0FF42xSPGYjp9qvN/22HKAbhTW2rMOcFdxK0lZKyxGH7GEukseowuVqYVLLCAdt8+My9JE24zJsnyWjtQ1ewyUFNbRisYe6gwEXp7kH49SuAfK1J5g+qiRoAhdtwSAzoqNbPo847YAIWIPCnA63C77jwx7JdL4afj65xQ20yF7MhnElFJgc+Afc+/N2r0wUs4T2SLA1ikLuAKkbPJq2JY0uJMlJOZ+i1yPiAxTflDORWyQ5jqySLLZfFx/6U6BChv/i6lBJLacs2e3YawY0G6sYTlZDr8euB1GoBASztNVAWixXgDDKUSCcNKuHaGtvyWtLg8LPob9xbaYVkTmBm2QsBKvgeBOt8otHp6uDfn2bRgPIZPc57mxcMuzOQNLM3VAAeypYB5oD1Vv45ikYLzJsdBuwN2y8iQ2WAMtG0YrfP2lGgiYRwlROv/GN/u7PZMKg="
+  target_commitish: $TRAVIS_COMMIT
+  name: $(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci
+  draft: true
+  file: "ghdl_mcode.tar.gz"
+  skip_cleanup: true
+  on:
+    all_branches: true
+    tags: false
