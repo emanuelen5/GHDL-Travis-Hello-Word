@@ -3,8 +3,7 @@ python:
   - 3.6
 sudo: required
 
-# Prerequisites for actually running GHDL
-install:
+before_install:
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
   - cd ~
@@ -18,12 +17,30 @@ install:
   - export PATH="/usr/gnat/bin:$PATH"
   - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
   - pushd ghdl
-  - ./configure --prefix=/usr/local/ghdl_mcode
-  - make
-  - sudo PATH=$PATH make install
-  - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
-  - popd
-  - pip install vunit_hdl
+
+jobs:
+  - include:
+    # Prerequisites for actually running GHDL
+    - install:
+      - ./configure --prefix=/usr/local/ghdl_mcode
+      - make
+      - sudo PATH=$PATH make install
+      - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
+      - popd
+      - pip install vunit_hdl
+    - install:
+      - mkdir build
+      - pushd build
+      - ../configure --with-gcc=/path/to/gcc/source/dir --prefix=/usr/local
+      - make copy-sources
+      - mkdir gcc-objs; cd gcc-objs
+      - /path/to/gcc/source/dir/configure --prefix=/usr/local --enable-languages=c,vhdl \
+        --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
+        --disable-libgomp --disable-libquadmath
+      - make -j2 && make install
+      - popd
+      - make ghdllib
+      - make install
 
 before_script:
   - cd $TRAVIS_BUILD_DIR
