@@ -50,7 +50,7 @@ matrix:
         - make copy-sources
         - mkdir gcc-objs
         - pushd gcc-objs
-        - $TRAVIS_BUILD_DIR/$GC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl \
+        - $TRAVIS_BUILD_DIR/$GCC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl \
           --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
           --disable-libgomp --disable-libquadmath
         - make -j2
