@@ -19,32 +19,32 @@ before_install:
   - pushd ghdl
 
 matrix:
-  - include:
+  include:
     # Prerequisites for actually running GHDL
     - env:
         BACKEND: MCODE
       install:
-      - ./configure --prefix=/usr/local/ghdl_mcode
-      - make
-      - sudo PATH=$PATH make install
-      - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
-      - popd
-      - pip install vunit_hdl
+        - ./configure --prefix=/usr/local/ghdl_mcode
+        - make
+        - sudo PATH=$PATH make install
+        - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
+        - popd
+        - pip install vunit_hdl
     - env:
         BACKEND: GCC
       install:
-      - mkdir build
-      - pushd build
-      - ../configure --with-gcc=/path/to/gcc/source/dir --prefix=/usr/local
-      - make copy-sources
-      - mkdir gcc-objs; cd gcc-objs
-      - /path/to/gcc/source/dir/configure --prefix=/usr/local --enable-languages=c,vhdl \
-        --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
-        --disable-libgomp --disable-libquadmath
-      - make -j2 && make install
-      - popd
-      - make ghdllib
-      - make install
+        - mkdir build
+        - pushd build
+        - ../configure --with-gcc=/path/to/gcc/source/dir --prefix=/usr/local
+        - make copy-sources
+        - mkdir gcc-objs; cd gcc-objs
+        - /path/to/gcc/source/dir/configure --prefix=/usr/local --enable-languages=c,vhdl \
+          --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
+          --disable-libgomp --disable-libquadmath
+        - make -j2 && make install
+        - popd
+        - make ghdllib
+        - make install
 
 before_script:
   - cd $TRAVIS_BUILD_DIR
