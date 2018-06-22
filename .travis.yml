@@ -4,6 +4,7 @@ python:
 sudo: required
 
 before_install:
+  - ORIGINAL_PATH="$PATH"
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
   - GNAT_ARCHIVE=${GNAT_FOLDER}.tar.gz
@@ -22,16 +23,18 @@ before_install:
 matrix:
   include:
     - env:
-        BACKEND: MCODE
+        BACKEND: mcode
+        GHDL_INSTALL_DIR: /usr/local/ghdl_mcode
       install:
-        - ./configure --prefix=/usr/local/ghdl_mcode
+        - ./configure --prefix=$GHDL_INSTALL_DIR
         - make -j8
         - sudo PATH="$PATH" make install
-        - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
+        - export PATH=$GHDL_INSTALL_DIR/bin/:"$PATH"
         - popd
         - pip install vunit_hdl
     - env:
-        BACKEND: GCC
+        BACKEND: gcc
+        GHDL_INSTALL_DIR: /usr/local/ghdl_gcc
       install:
         # Install GCC dependencies
         - sudo apt-get install libgmp-dev libmpfr-dev libmpc-dev
@@ -44,16 +47,15 @@ matrix:
         - wget ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_ARCHIVE} -O ${GCC_ARCHIVE}
         - mkdir ${GCC_FOLDER}
         - tar -vxzf ${GCC_ARCHIVE} -C ${GCC_FOLDER} --strip-components=1 > gcc_untar.log
-        - find . -type d -maxdepth 1
         - popd
         # Install GHDL using GCC source
         - mkdir build
         - pushd build
-        - ../configure --with-gcc="$TRAVIS_BUILD_DIR/$GCC_FOLDER" --prefix=/usr/local
+        - ../configure --with-gcc="$TRAVIS_BUILD_DIR/$GCC_FOLDER" --prefix=$GHDL_INSTALL_DIR
         - make copy-sources
         - mkdir gcc-objs
         - pushd gcc-objs
-        - $TRAVIS_BUILD_DIR/$GCC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl
+        - $TRAVIS_BUILD_DIR/$GCC_FOLDER/configure --prefix=/usr/local/gcc --enable-languages=c,vhdl
           --disable-bootstrap --disable-lto --disable-multilib --disable-libssp
           --disable-libgomp --disable-libquadmath
         - make -j8
@@ -67,6 +69,7 @@ before_script:
 
 # Here we should be able to run GHDL with VUnit
 script:
+  - export PATH=$GHDL_INSTALL_DIR:$ORIGINAL_PATH
   # Downloading example VHDL entity
   - curl -O https://raw.githubusercontent.com/emanuelen5/Neopixel-VHDL/b969e25b9a8d1c6e14e8989c03f1b50eb36f7d60/vhdl/debouncer.vhd
   # Trying simple commands that should work
@@ -83,8 +86,9 @@ before_deploy:
   - git config user.email "erasmus.cedernaes@gmail.com"
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci"
   # Create tar.gz folder
-  - cp -R /usr/local/ghdl_mcode ghdl_mcode
-  - tar -czf ghdl_mcode.tar.gz ghdl_mcode
+  - export GHDL_ARCHIVE_DIR=ghdl_$BACKEND
+  - cp -R ${GHDL_INSTALL_DIR} ${GHDL_ARCHIVE_DIR}
+  - tar -czf ${GHDL_ARCHIVE_DIR}.tar.gz ${GHDL_ARCHIVE_DIR}
 
 deploy:
   provider: releases
@@ -93,7 +97,7 @@ deploy:
   target_commitish: $TRAVIS_COMMIT
   name: $(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci
   draft: false
-  file: "ghdl_mcode.tar.gz"
+  file: ${GHDL_ARCHIVE_DIR}.tar.gz
   skip_cleanup: true
   on:
     all_branches: true
