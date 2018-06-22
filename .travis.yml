@@ -35,7 +35,7 @@ matrix:
         BACKEND: GCC
       install:
         # First get GCC
-        - pushd $TRAVIS_HOME
+        - pushd $TRAVIS_BUILD_DIR
         - GCC_FOLDER=gcc-8.1.0
         - GCC_ARCHIVE=gcc-8.1.0.tar.gz
         - wget ftp://ftp.gnu.org/gnu/gcc/gcc-8.1.0/gcc-8.1.0.tar.gz -O ${GCC_ARCHIVE}
@@ -46,11 +46,11 @@ matrix:
         # Then build GHDL
         - mkdir build
         - pushd build
-        - ../configure --with-gcc="$TRAVIS_HOME/$GCC_FOLDER" --prefix=/usr/local
+        - ../configure --with-gcc="$TRAVIS_BUILD_DIR/$GCC_FOLDER" --prefix=/usr/local
         - make copy-sources
         - mkdir gcc-objs
         - pushd gcc-objs
-        - $TRAVIS_HOME/$GC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl \
+        - $TRAVIS_BUILD_DIR/$GC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl \
           --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
           --disable-libgomp --disable-libquadmath
         - make -j2
