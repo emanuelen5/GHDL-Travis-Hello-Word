@@ -6,11 +6,12 @@ sudo: required
 before_install:
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
+  - GNAT_ARCHIVE=${GNAT_FOLDER}.tar.gz
   - cd ~
   - echo $PWD
-  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
+  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_ARCHIVE}
   - mkdir ${GNAT_FOLDER}
-  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
+  - tar -vxzf ${GNAT_ARCHIVE} -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
   - pushd ${GNAT_FOLDER}
   - sudo sh -c 'printf "\n\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [Splash screen]; Enter [default-dir]; y [Are you sure?]; y [Really sure?])
   - popd
@@ -33,15 +34,27 @@ matrix:
     - env:
         BACKEND: GCC
       install:
+        # First get GCC
+        - pushd $TRAVIS_HOME
+        - GCC_FOLDER=gcc-8.1.0
+        - GCC_ARCHIVE=gcc-8.1.0.tar.gz
+        - wget ftp://ftp.gnu.org/gnu/gcc/gcc-8.1.0/gcc-8.1.0.tar.gz -O ${GCC_ARCHIVE}
+        - mkdir ${GCC_FOLDER}
+        - tar -vxzf ${GCC_ARCHIVE} -C ${GCC_FOLDER} --strip-components=1 > gcc_untar.log
+        - find -type d .
+        - popd
+        # Then build GHDL
         - mkdir build
         - pushd build
-        - ../configure --with-gcc=/path/to/gcc/source/dir --prefix=/usr/local
+        - ../configure --with-gcc="$TRAVIS_HOME/$GCC_FOLDER" --prefix=/usr/local
         - make copy-sources
-        - mkdir gcc-objs; cd gcc-objs
-        - /path/to/gcc/source/dir/configure --prefix=/usr/local --enable-languages=c,vhdl \
+        - mkdir gcc-objs
+        - pushd gcc-objs
+        - $TRAVIS_HOME/$GC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl \
           --disable-bootstrap --disable-lto --disable-multilib --disable-libssp \
           --disable-libgomp --disable-libquadmath
-        - make -j2 && make install
+        - make -j2
+        - sudo make install
         - popd
         - make ghdllib
         - make install
