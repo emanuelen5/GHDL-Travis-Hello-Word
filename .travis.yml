@@ -41,7 +41,7 @@ matrix:
         - wget ftp://ftp.gnu.org/gnu/gcc/gcc-8.1.0/gcc-8.1.0.tar.gz -O ${GCC_ARCHIVE}
         - mkdir ${GCC_FOLDER}
         - tar -vxzf ${GCC_ARCHIVE} -C ${GCC_FOLDER} --strip-components=1 > gcc_untar.log
-        - find -type d .
+        - find . -type d
         - popd
         # Then build GHDL
         - mkdir build
