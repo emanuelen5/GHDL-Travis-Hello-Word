@@ -21,7 +21,6 @@ before_install:
 
 matrix:
   include:
-    # Prerequisites for actually running GHDL
     - env:
         BACKEND: MCODE
       install:
@@ -39,9 +38,10 @@ matrix:
         - sudo apt-get install texinfo
         # Get GCC
         - pushd $TRAVIS_BUILD_DIR
-        - GCC_FOLDER=gcc-8.1.0
-        - GCC_ARCHIVE=gcc-8.1.0.tar.gz
-        - wget ftp://ftp.gnu.org/gnu/gcc/gcc-8.1.0/gcc-8.1.0.tar.gz -O ${GCC_ARCHIVE}
+        - GCC_VERSION=gcc-8.1.0
+        - GCC_FOLDER=${GCC_VERSION}
+        - GCC_ARCHIVE=${GCC_VERSION}.tar.gz
+        - wget ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_ARCHIVE} -O ${GCC_ARCHIVE}
         - mkdir ${GCC_FOLDER}
         - tar -vxzf ${GCC_ARCHIVE} -C ${GCC_FOLDER} --strip-components=1 > gcc_untar.log
         - find . -type d -maxdepth 1
