@@ -26,7 +26,7 @@ matrix:
         BACKEND: MCODE
       install:
         - ./configure --prefix=/usr/local/ghdl_mcode
-        - make
+        - make -j8
         - sudo PATH="$PATH" make install
         - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
         - popd
@@ -56,7 +56,7 @@ matrix:
         - $TRAVIS_BUILD_DIR/$GCC_FOLDER/configure --prefix=/usr/local --enable-languages=c,vhdl
           --disable-bootstrap --disable-lto --disable-multilib --disable-libssp
           --disable-libgomp --disable-libquadmath
-        - make -j2
+        - make -j8
         - sudo PATH="$PATH" make install
         - popd
         - make ghdllib
