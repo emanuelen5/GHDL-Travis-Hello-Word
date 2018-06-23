@@ -71,7 +71,9 @@ before_script:
 
 # Here we should be able to run GHDL with VUnit
 script:
+  - echo $PATH
   - export PATH=$GHDL_INSTALL_DIR:$ORIGINAL_PATH
+  - echo $PATH
   # Downloading example VHDL entity
   - curl -O https://raw.githubusercontent.com/emanuelen5/Neopixel-VHDL/b969e25b9a8d1c6e14e8989c03f1b50eb36f7d60/vhdl/debouncer.vhd
   # Trying simple commands that should work
