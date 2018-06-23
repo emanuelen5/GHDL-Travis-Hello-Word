@@ -4,7 +4,7 @@ python:
 sudo: required
 
 before_install:
-  - ORIGINAL_PATH="$PATH"
+  - export ORIGINAL_PATH="$PATH"
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
   - GNAT_ARCHIVE=${GNAT_FOLDER}.tar.gz
