@@ -62,7 +62,7 @@ matrix:
         - make -j8
         - sudo PATH="$PATH" make install
         - popd
-        - export PATH=$GCC_INSTALL_DIR/bin:$PATH
+        - export PATH=$GCC_INSTALL_DIR/bin:$GHDL_INSTALL_DIR/bin:$PATH
         - make ghdllib
         - sudo PATH="$PATH" make install
 
