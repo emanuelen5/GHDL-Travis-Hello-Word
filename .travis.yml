@@ -3,33 +3,74 @@ python:
   - 3.6
 sudo: required
 
-# Prerequisites for actually running GHDL
-install:
+before_install:
+  - ORIGINAL_PATH="$PATH"
   - sudo apt-get install zlib1g-dev
   - GNAT_FOLDER="gnat-gpl-2017-x86_64-linux-bin"
+  - GNAT_ARCHIVE=${GNAT_FOLDER}.tar.gz
   - cd ~
   - echo $PWD
-  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_FOLDER}.tar.gz
+  - wget http://mirrors.cdn.adacore.com/art/591c6d80c7a447af2deed1d7 -O ${GNAT_ARCHIVE}
   - mkdir ${GNAT_FOLDER}
-  - tar -vxzf ${GNAT_FOLDER}.tar.gz -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
+  - tar -vxzf ${GNAT_ARCHIVE} -C ${GNAT_FOLDER} --strip-components=1 > gnat_untar.log
   - pushd ${GNAT_FOLDER}
   - sudo sh -c 'printf "\n\ny\ny\n\y\n" | ./doinstall' # Answer the TUI questions (Enter [Splash screen]; Enter [default-dir]; y [Are you sure?]; y [Really sure?])
   - popd
   - export PATH="/usr/gnat/bin:$PATH"
   - git clone https://github.com/ghdl/ghdl.git > ghdl_clone.log
   - pushd ghdl
-  - ./configure --prefix=/usr/local/ghdl_mcode
-  - make
-  - sudo PATH=$PATH make install
-  - export "PATH=/usr/local/ghdl_mcode/bin/:$PATH"
-  - popd
-  - pip install vunit_hdl
+
+matrix:
+  include:
+    - env:
+        BACKEND: mcode
+        GHDL_INSTALL_DIR: /usr/local/ghdl_mcode
+      install:
+        - ./configure --prefix=$GHDL_INSTALL_DIR
+        - make -j8
+        - sudo PATH="$PATH" make install
+        - export PATH=$GHDL_INSTALL_DIR/bin/:"$PATH"
+        - popd
+        - pip install vunit_hdl
+    - env:
+        BACKEND: gcc
+        GHDL_INSTALL_DIR: /usr/local/ghdl_gcc
+      install:
+        # Install GCC dependencies
+        - sudo apt-get install libgmp-dev libmpfr-dev libmpc-dev
+        - sudo apt-get install texinfo
+        # Get GCC
+        - pushd $TRAVIS_BUILD_DIR
+        - GCC_VERSION=gcc-8.1.0
+        - GCC_FOLDER=${GCC_VERSION}
+        - GCC_ARCHIVE=${GCC_VERSION}.tar.gz
+        - wget ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_ARCHIVE} -O ${GCC_ARCHIVE}
+        - mkdir ${GCC_FOLDER}
+        - tar -vxzf ${GCC_ARCHIVE} -C ${GCC_FOLDER} --strip-components=1 > gcc_untar.log
+        - popd
+        # Install GHDL using GCC source
+        - mkdir build
+        - pushd build
+        - ../configure --with-gcc="$TRAVIS_BUILD_DIR/$GCC_FOLDER" --prefix=$GHDL_INSTALL_DIR
+        - make copy-sources
+        - mkdir gcc-objs
+        - pushd gcc-objs
+        - $TRAVIS_BUILD_DIR/$GCC_FOLDER/configure --prefix=$GHDL_INSTALL_DIR --enable-languages=c,vhdl
+          --disable-bootstrap --disable-lto --disable-multilib --disable-libssp
+          --disable-libgomp --disable-libquadmath
+        - make -j8
+        - sudo PATH="$PATH" make install
+        - popd
+        - export PATH=$GHDL_INSTALL_DIR/bin:$PATH
+        - make ghdllib
+        - sudo PATH="$PATH" make install
 
 before_script:
   - cd $TRAVIS_BUILD_DIR
 
 # Here we should be able to run GHDL with VUnit
 script:
+  - export PATH=$GHDL_INSTALL_DIR/bin:$ORIGINAL_PATH
   # Downloading example VHDL entity
   - curl -O https://raw.githubusercontent.com/emanuelen5/Neopixel-VHDL/b969e25b9a8d1c6e14e8989c03f1b50eb36f7d60/vhdl/debouncer.vhd
   # Trying simple commands that should work
@@ -46,8 +87,9 @@ before_deploy:
   - git config user.email "erasmus.cedernaes@gmail.com"
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci"
   # Create tar.gz folder
-  - cp -R /usr/local/ghdl_mcode ghdl_mcode
-  - tar -czf ghdl_mcode.tar.gz ghdl_mcode
+  - export GHDL_ARCHIVE_DIR=ghdl_$BACKEND
+  - cp -R ${GHDL_INSTALL_DIR} ${GHDL_ARCHIVE_DIR}
+  - tar -czf ${GHDL_ARCHIVE_DIR}.tar.gz ${GHDL_ARCHIVE_DIR}
 
 deploy:
   provider: releases
@@ -55,9 +97,9 @@ deploy:
     secure: "SXUWuSyMfugJ967J9GnM9HgvLhbvV2esfRIvIUvKMI9VA1L6hwW9G1q8KzpKvVH70v6HtnZsNAKjNr3rOxnMXZs1zcXheqzkiy+xKOp8TyfoypMTdUavys8vN0AVP2ZJxqbfCf7pxKNaIyOD002mQyTKs6WRQTU1D0Zy0xjdug1SJODeanojZl6fNUXw4g91jwZ9G9DRFFeWiqn+YsMdpWyqLVQueA767gHcp/0w0FF42xSPGYjp9qvN/22HKAbhTW2rMOcFdxK0lZKyxGH7GEukseowuVqYVLLCAdt8+My9JE24zJsnyWjtQ1ewyUFNbRisYe6gwEXp7kH49SuAfK1J5g+qiRoAhdtwSAzoqNbPo847YAIWIPCnA63C77jwx7JdL4afj65xQ20yF7MhnElFJgc+Afc+/N2r0wUs4T2SLA1ikLuAKkbPJq2JY0uJMlJOZ+i1yPiAxTflDORWyQ5jqySLLZfFx/6U6BChv/i6lBJLacs2e3YawY0G6sYTlZDr8euB1GoBASztNVAWixXgDDKUSCcNKuHaGtvyWtLg8LPob9xbaYVkTmBm2QsBKvgeBOt8otHp6uDfn2bRgPIZPc57mxcMuzOQNLM3VAAeypYB5oD1Vv45ikYLzJsdBuwN2y8iQ2WAMtG0YrfP2lGgiYRwlROv/GN/u7PZMKg="
   target_commitish: $TRAVIS_COMMIT
   name: $(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)-travis-ci
-  draft: true
-  file: "ghdl_mcode.tar.gz"
+  draft: false
+  file: ${GHDL_ARCHIVE_DIR}.tar.gz
   skip_cleanup: true
   on:
     all_branches: true
-    tags: false
+    tags: true
